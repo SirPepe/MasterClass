@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Screenshot-Test</title>
+<script src="../lib/shims.js"></script>
+<link rel="stylesheet" href="../lib/qunit.css">
+<script src="../lib/qunit.js"></script>
+
+<div id="qunit"></div>
+
+<script>
+  QUnit.config.autostart = false;
+  var require = { baseUrl: '../' };
+</script>
+<script src="../requireconfig.js"></script>
+<script src="../lib/require.js"></script>
+
+<script>
+require(['takeScreenshot'], function(takeScreenshot){
+
+  test('Modul-API', function(){
+    ok(typeof takeScreenshot === 'function', 'Modul-API ist eine Funktion');
+    equal(takeScreenshot.length, 1, 'Modul-API akzeptiert ein Argument');
+  });
+
+  asyncTest('Erstellen eines Screenshots', function(){
+    var source = new Image();
+    source.src = 'assets/image.png';
+    source.onload = function(){
+      var screenshotPromise = takeScreenshot(source);
+      ok(typeof screenshotPromise.then === 'function', 'Modul-API gibt ein Promise zurück');
+      screenshotPromise.then(function successCallback(blob){
+        ok(true, 'Promise wird aufgelöst');
+        equal(blob.toString(), '[object Blob]', 'Promise wird mit Blob-Objekt aufgelöst');
+        start();
+      }, function errorCallback(err){
+        throw new Error('Fehler: Promise wurde rejected!');
+      });
+    };
+  });
+
+  asyncTest('Verarbeitung von ungültigen Quellen', function(){
+    stop(3);
+    var invalidSources = [
+      42,
+      "Hallo Welt",
+      $('<div>')[0],
+      null
+    ];
+    invalidSources.forEach(function(source){
+      var screenshotPromise = takeScreenshot(source);
+      screenshotPromise.then(function successCallback(){
+        throw new Error('Fehler: Promise wurde aufgelöst!');
+      }, function errorCallback(err){
+        var type = Object.prototype.toString.call(source);
+        ok(true, 'Promise wird bei ungültiger Quelle ' + type + ' rejected');
+        equal(Object.prototype.toString.call(err), '[object Error]',
+          'Promise für ' + type + ' wird mit Fehler-Objekt rejected');
+        start();
+      })
+    });
+  });
+
+  QUnit.start();
+
+});
+</script>
