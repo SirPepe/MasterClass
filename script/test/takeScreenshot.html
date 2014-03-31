@@ -6,6 +6,7 @@
 <script src="../lib/qunit.js"></script>
 
 <div id="qunit"></div>
+<div id="qunit-fixture"></div>
 
 <script>
   QUnit.config.autostart = false;
@@ -17,40 +18,97 @@
 <script>
 require(['takeScreenshot'], function(takeScreenshot){
 
+  function testResult(blob, expectedWidth, expectedHeight){
+    equal(blob.toString(), '[object Blob]',
+      'Promise wird mit Blob-Objekt aufgelöst');
+    $('<img>')
+      .attr('src', window.URL.createObjectURL(blob))
+      .on('load', function(evt){
+        equal(evt.target.naturalWidth, expectedWidth,
+          'Screenshot-Breite entspricht der Quelle');
+        equal(evt.target.naturalHeight, expectedHeight,
+          'Screenshot-Höhe entspricht der Quelle');
+        start();
+      });
+  }
+
   test('Modul-API', function(){
     ok(typeof takeScreenshot === 'function', 'Modul-API ist eine Funktion');
     equal(takeScreenshot.length, 1, 'Modul-API akzeptiert ein Argument');
+    throws(function(){
+      takeScreenshot();
+    }, 'Exception beim Aufruf ohne Quelle');
   });
 
-  asyncTest('Erstellen eines Screenshots', function(){
-    var source = new Image();
-    source.src = 'assets/image.png';
-    source.onload = function(){
-      var screenshotPromise = takeScreenshot(source);
-      ok(typeof screenshotPromise.then === 'function', 'Modul-API gibt ein Promise zurück');
-      screenshotPromise.then(function successCallback(blob){
+  asyncTest('Erstellen eines Screenshots mit IMG-Element', function(){
+    $('<img>').attr('src', 'assets/image.png').on('load', function(evt){
+      var promise = takeScreenshot(evt.target);
+      equal(typeof promise.then, 'function', 'Modul-API gibt Promise zurück');
+      promise.then(function resolveCallback(blob){
         ok(true, 'Promise wird aufgelöst');
-        equal(blob.toString(), '[object Blob]', 'Promise wird mit Blob-Objekt aufgelöst');
-        start();
-      }, function errorCallback(err){
+        testResult(blob, evt.target.naturalWidth, evt.target.naturalHeight);
+      }, function rejectCallback(err){
         throw new Error('Fehler: Promise wurde rejected!');
       });
-    };
+    });
+  });
+
+  asyncTest('Erstellen eines Screenshots mit Video-Element', function(){
+    $('<video>').attr('src', 'assets/test.webm').on('canplay', function(evt){
+      var promise = takeScreenshot(evt.target);
+      equal(typeof promise.then, 'function', 'Modul-API gibt Promise zurück');
+      promise.then(function resolveCallback(blob){
+        ok(true, 'Promise wird aufgelöst');
+        testResult(blob, evt.target.videoWidth, evt.target.videoHeight);
+      }, function rejectCallback(err){
+        throw new Error('Fehler: Promise wurde rejected!');
+        start();
+      });
+    });
+  });
+
+  asyncTest('Erstellen eines Screenshots mit Canvas-Element', function(){
+    var target = $('<canvas>').attr({ width: 320, height: 480 }).get(0);
+    var promise = takeScreenshot(target);
+    equal(typeof promise.then, 'function', 'Modul-API gibt Promise zurück');
+    promise.then(function resolveCallback(blob){
+      ok(true, 'Promise wird aufgelöst');
+      testResult(blob, 320, 480);
+    }, function rejectCallback(err){
+      throw new Error('Fehler: Promise wurde rejected!');
+      start();
+    });
+  });
+
+  asyncTest('Erstellen eines Screenshots mit jQuery-IMG-Objekt', function(){
+    $('<img>').attr('src', 'assets/image.png').on('load', function(evt){
+      var promise = takeScreenshot($(evt.target));
+      equal(typeof promise.then, 'function', 'Modul-API gibt Promise zurück');
+      promise.then(function resolveCallback(blob){
+        ok(true, 'Promise wird aufgelöst');
+        testResult(blob, evt.target.naturalWidth, evt.target.naturalHeight);
+      }, function rejectCallback(err){
+        throw new Error('Fehler: Promise wurde rejected!');
+        start();
+      });
+    });
   });
 
   asyncTest('Verarbeitung von ungültigen Quellen', function(){
-    stop(3);
+    stop(4);
     var invalidSources = [
       42,
       "Hallo Welt",
+      $('<div>'),
       $('<div>')[0],
       null
     ];
     invalidSources.forEach(function(source){
-      var screenshotPromise = takeScreenshot(source);
-      screenshotPromise.then(function successCallback(){
+      var promise = takeScreenshot(source);
+      promise.then(function resolveCallback(){
         throw new Error('Fehler: Promise wurde aufgelöst!');
-      }, function errorCallback(err){
+        start();
+      }, function rejectCallback(err){
         var type = Object.prototype.toString.call(source);
         ok(true, 'Promise wird bei ungültiger Quelle ' + type + ' rejected');
         equal(Object.prototype.toString.call(err), '[object Error]',

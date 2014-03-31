@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Thumbnail-Test</title>
+<script src="../lib/shims.js"></script>
+<link rel="stylesheet" href="../lib/qunit.css">
+<script src="../lib/qunit.js"></script>
+
+<div id="qunit"></div>
+
+<script>
+  QUnit.config.autostart = false;
+  var require = { baseUrl: '../' };
+</script>
+<script src="../requireconfig.js"></script>
+<script src="../lib/require.js"></script>
+
+<script>
+var imageTestSizes = (function(){
+  var r = 256 / 245;
+  return [
+    { width: 100, height: 100 },
+    { width: 72, height: 100 },
+    { width: 100, height: 72 }
+  ].map(function(size){
+    var w = size.width;
+    var h = size.height;
+    size.expectedWidth = Math.round(w > h * r ? h * r : w);
+    size.expectedHeight = Math.round(w > h * r ? h : w / r);
+    return size;
+  });
+})();
+
+require(['createThumbnail', 'q'], function(createThumbnail, Q){
+
+  // TODO Video, Canvas als Quelle
+
+  function runTestWith(source, size){
+    var promise = createThumbnail(source, size.width, size.height);
+    ok(typeof promise.then === 'function', 'Modul-API gibt ein Promise zurück');
+    promise.then(function resolveCallback(blob){
+      ok(true, 'Promise wird aufgelöst');
+      equal(blob.toString(), '[object Blob]', 'Promise wird mit Blob aufgelöst');
+      var testImg = new Image();
+      testImg.src = window.URL.createObjectURL(blob);
+      testImg.onload = function(){
+        testImageDimensions(testImg, size);
+        start();
+      }
+    }, function rejectCallback(err){
+      throw new Error('Fehler: Promise wurde rejected!');
+    });
+  }
+
+  function testImageDimensions(img, size){
+    var imgWidth = img.naturalWidth;
+    var imgHeight = img.naturalHeight
+    ok(imgWidth > imgHeight, 'Bild bleibt breiter als hoch');
+    equal(imgWidth, size.expectedWidth, 'Bild-Breite ' + size.expectedWidth);
+    equal(imgHeight, size.expectedHeight, 'Bild-Höhe ' + size.expectedHeight);
+  }
+
+  function getImage(callback, imgSrc){
+    if(!imgSrc) imgSrc = 'assets/image.png';
+    var img = new Image();
+    img.src = imgSrc;
+    img.onload = function(){
+      callback(img);
+    };
+  }
+
+  function getBlob(callback, url, type){
+    if(!url) url = 'assets/image.png';
+    if(!type) type = 'image/png';
+    var req = new XMLHttpRequest();
+    req.open('GET', url, true);
+    req.responseType = 'arraybuffer';
+    req.onload = function(evt){
+      var blob = new Blob([evt.target.response], { type: type });
+      callback(blob);
+    };
+    req.send(null);
+  }
+
+  test('Modul-API', function(){
+    ok(typeof createThumbnail === 'function', 'Modul-API ist eine Funktion');
+    equal(createThumbnail.length, 3, 'Modul-API akzeptiert drei Argumente');
+    throws(function(){
+      createThumbnail(null, 42);
+    }, 'Exception beim Aufruf mit 2 Argumenten');
+    throws(function(){
+      createThumbnail(null);
+    }, 'Exception beim Aufruf mit einem Argument');
+  });
+
+  // Thumb aus img-Element
+  getImage(function(img){
+    imageTestSizes.forEach(function(size){
+      asyncTest('Thumbnail (max ' + size.width + 'x' + size.height + ') aus Bild', function(){
+        runTestWith(img, size);
+      });
+    });
+  });
+
+  // Thumb aus Blob-Element
+  getBlob(function(blob){
+    getImage(function(img){
+      imageTestSizes.forEach(function(size){
+        asyncTest('Thumbnail (max ' + size.width + 'x' + size.height + ') aus Blob', function(){
+          runTestWith(img, size);
+        });
+      });
+    }, window.URL.createObjectURL(blob));
+  });
+
+  // Thumb aus Promise
+  imageTestSizes.forEach(function(size){
+
+    // Bild-Promise
+    asyncTest('Thumbnail (max ' + size.width + 'x' + size.height + ') aus Bild-Promise', function(){
+      var imgDeferred = Q.defer();
+      runTestWith(imgDeferred.promise, size);
+      getImage(imgDeferred.resolve);
+    });
+
+    // Blob-Promise
+    asyncTest('Thumbnail (max ' + size.width + 'x' + size.height + ') aus Bild-Promise', function(){
+      var blobDeferred = Q.defer();
+      runTestWith(blobDeferred.promise, size);
+      getBlob(function(blob){
+        getImage(blobDeferred.resolve, window.URL.createObjectURL(blob));
+      });
+    });
+
+    // Bild-Promise-Promise
+    asyncTest('Thumbnail (max ' + size.width + 'x' + size.height + ') aus Bild-Promise-Promise', function(){
+      var aDeferred = Q.defer();
+      var bDeferred = Q.defer();
+      aDeferred.promise.then(bDeferred.resolve)
+      runTestWith(bDeferred.promise, size);
+      getImage(aDeferred.resolve);
+    });
+
+    // Fehlschlagendes Promise
+    asyncTest('Fehlschlagendes Promise als Quelle', function(){
+      var deferred = Q.defer();
+      var promise = createThumbnail(deferred.promise, 42, 42);
+      promise.then(function resolveCallback(){
+        throw new Error('Thumbnail-Promise wird bei fehlschlagender Promise-Quelle aufgelöst!');
+      }, function rejectCallback(){
+        ok(true, 'Thumbnail-Promise wird bei fehlschlagender Promise-Quelle rejected');
+        start();
+      })
+      deferred.reject(new Error('Fail!'));
+    });
+
+  });
+
+
+  QUnit.start();
+
+});
+</script>

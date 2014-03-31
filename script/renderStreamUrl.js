@@ -8,7 +8,7 @@ define(['jquery', 'q'], function($, Q){
       var $video = $('<video>').attr('src', url);
       $video.on({
         canplay: function onVideoCanPlay(){
-          $video[0].play();
+          $video.get(0).play();
           deferred.resolve($video);
         },
         error: function onVideoError(err){

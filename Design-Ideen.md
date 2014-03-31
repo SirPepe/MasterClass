@@ -1,0 +1,3 @@
+- Schön aufpoppende Fehlermeldung (CSS-Animationen)
+- Zoom-Animation nach Foto von Video-Feed zur Gallery-Position
+- Bild Löschen lässt es nach unten aus dem Bild purzeln (CSS-Animation + 3D-Transform)

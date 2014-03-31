@@ -10,9 +10,7 @@ define(['q'], function(Q){
     }, function successCallback(stream){
       var url = window.URL.createObjectURL(stream);
       deferred.resolve(url);
-    }, function errorCallback(error){
-      deferred.reject(error);
-    });
+    }, deferred.reject);
 
     return deferred.promise;
 

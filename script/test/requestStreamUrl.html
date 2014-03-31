@@ -43,8 +43,7 @@ require(['requestStreamUrl'], function(requestStreamUrl){
     },
     function errorCallback(err){
       ok(true, 'Promise wird im Fehlerfall rejected');
-      equal(Object.prototype.toString.call(err), '[object Error]',
-        'Promise wird mit Fehler-Objekt rejected');
+      equal(typeof err, 'object', 'Promise wird mit Fehler-Objekt rejected');
       start();
     });
   });

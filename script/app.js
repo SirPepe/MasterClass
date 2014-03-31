@@ -1,20 +1,72 @@
-require(['jquery', 'requestStreamUrl', 'renderStreamUrl'],
-  function($, requestStreamUrl, renderStreamUrl){
-
-  function handleError(){
-    $('#VideoWrapper').addClass('fail');
+function handleError(message){
+  return function(err){
+    window.alert(message + ': ' + err.message);
+    $('body').addClass('error');
     console.error(err);
-  }
+  };
+}
 
-  requestStreamUrl()
+require(['jquery',
+  'q',
+  'requestStreamUrl',
+  'renderStreamUrl',
+  'takeScreenshot',
+  'createThumbnail'
+], function($,
+  Q,
+  requestStreamUrl,
+  renderStreamUrl,
+  takeScreenshot,
+  createThumbnail
+){
+
+  var streamPromise = requestStreamUrl()
     .then(renderStreamUrl)
     .then(function($video){
-      $video.appendTo('#VideoWrapper');
-      $('#SnapButton').attr('disabled', false);
-    }, handleError);
+      return Q($video.appendTo('#VideoWrapper'));
+    })
+    .fail(handleError('Kann Videostream nicht anzeigen'));
 
-  $('#SnapButton').on('click', function(){
+  function createGalleryImage(fullBlob, thumbBlob){
+    var $wrapper = $('<div>');
+    var $link = $('<a>').attr('href', window.URL.createObjectURL(fullBlob));
+    var $img = $('<img>').attr('src', window.URL.createObjectURL(thumbBlob));
+    var $close = $('<a>').addClass('close').text('x');
+    $link.appendTo($wrapper);
+    $close.appendTo($wrapper);
+    $img.appendTo($link);
+    return Q($wrapper);
+  }
 
+  function takeScreenshotWithThumbnail(source){
+    return takeScreenshot(source)
+      .then(function(imgBlob){
+        return createThumbnail(imgBlob, 100, 100)
+          .then(function(thumbBlob){
+            return Q({ full: imgBlob, thumb: thumbBlob });
+          });
+      });
+  }
+
+  streamPromise.then(function($video){
+    $('#SnapButton')
+      .attr('disabled', false)
+      .on('click', function(){
+        takeScreenshotWithThumbnail($video)
+        .then(function(blobs){
+          return createGalleryImage(blobs.full, blobs.thumb);
+        })
+        .then(function($galleryImage){
+          $galleryImage.appendTo('#Gallery');
+        })
+        .fail(handleError('Konnte Screenshot nicht erstellen'));
+      });
+
+
+  });
+
+  $('#Gallery').on('click', 'a.close', function(evt){
+    $(evt.target).parent().remove();
   });
 
 });
