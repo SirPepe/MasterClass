@@ -1,0 +1,38 @@
+
+body {
+	background-color: #588189;
+	max-width: 1040px;
+	margin: 20px auto;
+	font-size: 100%;
+}
+
+#VideoWrapper {
+	
+}
+video {
+	width: auto;
+	height: auto;
+	max-width: 100%;
+	
+	display: block;
+	margin: 0 auto;
+	border: 5px solid #fff;
+}
+#SnapButton {
+	border: none;
+	padding: 10px 20px;
+	background-color: #cecece;
+	color: #000;
+	font-size: 1.25rem;
+}
+#Gallery {
+	
+}
+#Gallery img {
+	display: block;
+	border: 2px solid #fff;
+}
+
+button:hover, button:focus {
+	cursor: pointer;
+}
