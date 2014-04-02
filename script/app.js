@@ -31,7 +31,7 @@ require(['jquery',
     var $wrapper = $('<div>');
     var $link = $('<a>').attr('href', window.URL.createObjectURL(fullBlob));
     var $img = $('<img>').attr('src', window.URL.createObjectURL(thumbBlob));
-    var $close = $('<a>').addClass('close').text('x');
+    var $close = $('<button>').addClass('close').text('x');
     $link.appendTo($wrapper);
     $close.appendTo($wrapper);
     $img.appendTo($link);
@@ -65,7 +65,7 @@ require(['jquery',
 
   });
 
-  $('#Gallery').on('click', 'a.close', function(evt){
+  $('#Gallery').on('click', 'button.close', function(evt){
     $(evt.target).parent().remove();
   });
 
