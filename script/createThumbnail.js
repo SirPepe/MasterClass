@@ -1,6 +1,30 @@
+/*
+  Anforderungen
+  -------------
+  * createThumbnail(source, maxWidth, maxHeight) erstellt eine verkleinerte
+    Version dessen, was auf "source" abgebildet ist
+    * sind "source", "maxWidth" oder "maxHeight" nicht angegeben, wird ein
+      Error geworfen
+    * ist "source" kein Blob oder kein Canvas, Video oder Img-Element, wird ein
+      Error geworfen
+  * createThumbnail(source, maxWidth, maxHeight) erstellt ein Promise auf einen
+    verkleinerten Screenshot von source
+    * bei erfolgreichem erstellen des verkleinerten Screenshots wird das Promise
+      mit dem Screenshot als Blob-Objekt aufgelöst
+      * der Screnshot hat das gleiche Seitenverhältnis wie das Original "source"
+      * der Screenshot hat die größtmöglichen Maße, die "maxWidth" und
+        "maxHeight" nicht  überschreiten
+    * bei Fehler während des Screenshot-Erstellens wird das Promise mit einem
+      Error rejected
+*/
+
 define(['jquery', 'q'], function($, Q){
 
   return function createThumbnail(source, maxWidth, maxHeight){
+
+    if(typeof source === 'undefined'){
+      throw new Error('Keine Thumbnail-Quelle angegeben');
+    }
 
     if(typeof maxHeight === 'undefined' || typeof maxWidth === 'undefined'){
       throw new Error('Höhe und/oder Breite nicht angegeben');
@@ -8,11 +32,9 @@ define(['jquery', 'q'], function($, Q){
 
     var $canvas = $('<canvas>');
     var context = $canvas.get(0).getContext('2d');
+    source = $(source).get(0);
 
     function getSourceType(source){
-      if(source && typeof source.then === 'function'){
-        return 'promise';
-      }
       if(source && source.toString() === '[object Blob]'){
         return 'blob';
       }
@@ -22,26 +44,34 @@ define(['jquery', 'q'], function($, Q){
       return 'unknown';
     }
 
-    function getThumbSize(){
-      var x = source.naturalWidth || source.videoWidth || $(source).width();
-      var y = source.naturalHeight || source.videoHeight || $(source).height();
-      var ratio = x / y;
+    function getThumbSize(source){
+      var x = source.naturalWidth ||    // Bild
+              source.videoWidth ||      // Video
+              $(source).attr('width');  // Canvas
+      var y = source.naturalHeight ||   // Bild
+              source.videoHeight ||     // Video
+              $(source).attr('height'); // Canvas
+      var r = x / y;
       var w = maxWidth;
       var h = maxHeight;
       return {
-        width: Math.round(w > h * ratio ? h * ratio : w),
-        height: Math.round(w > h * ratio ? h : w / ratio)
+        width: Math.round(w > h * r ? h * r : w),
+        height: Math.round(w > h * r ? h : w / r)
       };
     }
 
     function handleElement(source){
-      var size = getThumbSize();
+      var size = getThumbSize(source);
       var deferred = Q.defer();
-      $canvas.attr(size);
-      context.drawImage(source, 0, 0, size.width, size.height);
-      $canvas[0].toBlob(function blobCallback(blob){
-        deferred.resolve(blob);
-      });
+      try {
+        $canvas.attr(size);
+        context.drawImage(source, 0, 0, size.width, size.height);
+        $canvas[0].toBlob(function(blob){
+          deferred.resolve(blob);
+        });
+      } catch(err){
+        deferred.reject(err);
+      }
       return deferred.promise;
     }
 
@@ -55,23 +85,14 @@ define(['jquery', 'q'], function($, Q){
       return deferred.promise;
     }
 
-    function handlePromise(source){
-      return source.then(function(result){
-        return createThumbnail(result, maxWidth, maxHeight);
-      });
-    }
-
     switch(getSourceType(source)){
       case 'element':
         return handleElement(source);
       case 'blob':
         return handleBlob(source);
-      case 'promise':
-        return handlePromise(source);
       default:
-        return Q.fcall(function(){
-          throw new Error('Kann Quelle nicht verarbeiten');
-        });
+        throw new Error('Kann Quelle ' + source.toString() +
+          ' nicht verarbeiten');
     }
 
   };
