@@ -1,3 +1,14 @@
+/*
+  Anforderungen
+  -------------
+  * requestStream() fordert Zugriff auf die Kamera an
+  * requestStream() gibt ein Promise zurück
+    * wird der Zugriff auf die Kamera gewährt, wird das Promise mit dem
+      Stream-Objekt aufgelöst
+    * wird der Zugriff auf die Kamera nicht gewährt oder gibt es einen Fehler,
+      wirft das Promise mit einem Error rejected
+*/
+
 define(['q'], function(Q){
 
   return function requestStream(){
