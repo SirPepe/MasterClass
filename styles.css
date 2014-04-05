@@ -1,0 +1,66 @@
+
+body {
+	background-color: #588189;
+	font-size: 100%;
+	padding: 20px;
+}
+
+#VideoWrapper, #Gallery {
+	max-width: 1040px;
+	margin: 10px auto;
+}
+video {
+	width: auto;
+	height: auto;
+	max-width: 100%;
+	
+	display: block;
+	margin: 0 auto;
+	border: 5px solid #fff;
+}
+#SnapButton {
+	border: none;
+	padding: 10px 20px;
+	background-color: #cecece;
+	color: #000;
+	font-size: 1.25rem;
+}
+#Gallery {
+	/* FF 2 - 21 | Chrome bis v20 */
+	/* Safari | Android | iOS */	
+	display: -webkit-box;	
+	display: -moz-box;		
+
+	/* IE ab v10 */	
+	display: -ms-flexbox;	
+	
+	/* Chrome v21+ | FF 22+ | Blackberry v10+ */
+	/* Safari v6.1+ (mit Prefix) */		
+	display: -webkit-flex;
+	display: flex;
+	
+	flex-direction: row;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	align-items: flex-start;
+}
+#Gallery div:not(:first-child) {
+	margin-left: 20px;
+}
+#Gallery div{
+ /* flex-basis: 20%; */
+	flex-shrink: 1;
+}
+/*
+#Gallery div:first-child {
+	margin-left: 0;
+}
+*/
+#Gallery img {
+	display: block;
+	border: 2px solid #fff;
+}
+
+button:hover, button:focus {
+	cursor: pointer;
+}
