@@ -16,16 +16,16 @@
 <script src="../lib/require.js"></script>
 
 <script>
-require(['renderStreamUrl', 'q'], function(renderStreamUrl, Q){
+require(['renderVideo', 'q'], function(renderVideo, Q){
 
   test('Modul-API', function(){
-    ok(typeof renderStreamUrl === 'function', 'Modul-API ist eine Funktion');
-    equal(renderStreamUrl.length, 1, 'Modul-API akzeptiert ein Argument');
+    ok(typeof renderVideo === 'function', 'Modul-API ist eine Funktion');
+    equal(renderVideo.length, 1, 'Modul-API akzeptiert ein Argument');
   });
 
   asyncTest('Rendern eines Videos', function(){
     var result;
-    var videoPromise = renderStreamUrl('assets/test.webm');
+    var videoPromise = renderVideo('assets/test.webm');
     ok(typeof videoPromise.then === 'function',
       'Modul-API gibt ein Promise zurück');
     videoPromise.then(function successCallback(video){

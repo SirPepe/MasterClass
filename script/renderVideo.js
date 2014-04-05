@@ -1,6 +1,6 @@
 define(['jquery', 'q'], function($, Q){
 
-  return function renderStreamUrl(source){
+  return function renderVideo(source){
 
     var deferred = Q.defer();
 

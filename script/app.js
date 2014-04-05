@@ -8,20 +8,20 @@ function handleError(message){
 
 require(['jquery',
   'q',
-  'requestStreamUrl',
-  'renderStreamUrl',
+  'requestStream',
+  'renderVideo',
   'takeScreenshot',
   'createThumbnail'
 ], function($,
   Q,
-  requestStreamUrl,
-  renderStreamUrl,
+  requestStream,
+  renderVideo,
   takeScreenshot,
   createThumbnail
 ){
 
-  var streamPromise = requestStreamUrl()
-    .then(renderStreamUrl)
+  var streamPromise = requestStream()
+    .then(renderVideo)
     .then(function(video){
       video.play();
       return Q($(video).appendTo('#VideoWrapper'));

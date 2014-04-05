@@ -17,15 +17,15 @@
 <script src="../lib/require.js"></script>
 
 <script>
-require(['requestStreamUrl'], function(requestStreamUrl){
+require(['requestStream'], function(requestStream){
 
   test('Modul-API', function(){
-    ok(typeof requestStreamUrl === 'function', 'Modul-API ist eine Funktion');
+    ok(typeof requestStream === 'function', 'Modul-API ist eine Funktion');
   });
 
   asyncTest('Erfolgreiches Stream-Abfragen', function(){
     var result;
-    var streamPromise = requestStreamUrl();
+    var streamPromise = requestStream();
     equal(typeof streamPromise.then, 'function',
       'Modul-API gibt ein Promise zurück');
     streamPromise.then(function(streamUrl){
@@ -44,7 +44,7 @@ require(['requestStreamUrl'], function(requestStreamUrl){
 
   asyncTest('Fehlschlagendes/abgelehntes Stream-Abfragen', function(){
     var error;
-    var streamPromise = requestStreamUrl();
+    var streamPromise = requestStream();
     streamPromise.fail(function failCallback(err){
       error = err;
     });

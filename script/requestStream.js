@@ -1,6 +1,6 @@
 define(['q'], function(Q){
 
-  return function requestStreamUrl(){
+  return function requestStream(){
 
     var deferred = Q.defer();
 
