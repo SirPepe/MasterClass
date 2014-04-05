@@ -10,6 +10,7 @@
 
 <script>
   QUnit.config.autostart = false;
+  QUnit.config.reorder = false;
   var require = { baseUrl: '../' };
 </script>
 <script src="../requireconfig.js"></script>
@@ -23,31 +24,38 @@ require(['requestStreamUrl'], function(requestStreamUrl){
   });
 
   asyncTest('Erfolgreiches Stream-Abfragen', function(){
+    var result;
     var streamPromise = requestStreamUrl();
-    ok(typeof streamPromise.then === 'function', 'Modul-API gibt ein Promise zurück');
-    streamPromise.then(function successCallback(streamUrl){
-      ok(true, 'Promise wird aufgelöst');
-      ok(typeof streamUrl === 'string', 'Promise wird mit String aufgelöst');
-      var streamUrlProtocol = URI(streamUrl).protocol();
-      equal(streamUrlProtocol, 'blob', 'Promise wird mit Blob-URL aufgelöst');
-      start();
-    }, function errorCallback(){
-      throw new Error('Fehler: Promise wurde rejected!');
+    equal(typeof streamPromise.then, 'function',
+      'Modul-API gibt ein Promise zurück');
+    streamPromise.then(function(streamUrl){
+      result = streamUrl;
     });
-  });
-
-  asyncTest('Fehlschlagendes Stream-Abfragen', function(){
-    var streamPromise = requestStreamUrl();
-    streamPromise.then(function successCallback(){
-      throw new Error('Fehler: Promise wurde aufgelöst!');
-    },
-    function errorCallback(err){
-      ok(true, 'Promise wird im Fehlerfall rejected');
-      equal(typeof err, 'object', 'Promise wird mit Fehler-Objekt rejected');
+    streamPromise.finally(function(){
+      equal(streamPromise.isFulfilled(), true,
+        'Promise wurde aufgelöst');
+      equal(typeof result, 'string',
+        'Promise wird mit String aufgelöst');
+      equal(URI(result).protocol(), 'blob',
+        'Promise wird mit Blob-URL aufgelöst');
       start();
     });
   });
 
+  asyncTest('Fehlschlagendes/abgelehntes Stream-Abfragen', function(){
+    var error;
+    var streamPromise = requestStreamUrl();
+    streamPromise.fail(function failCallback(err){
+      error = err;
+    });
+    streamPromise.finally(function(){
+      equal(streamPromise.isRejected(), true,
+        'Promise wurde rejected');
+      equal(typeof error, 'object',
+        'Promise wurde mit Fehler-Objekt rejected');
+      start();
+    });
+  });
 
   QUnit.start();
 
