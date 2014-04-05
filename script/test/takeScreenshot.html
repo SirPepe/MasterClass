@@ -91,29 +91,31 @@ require(['takeScreenshot'], function(takeScreenshot){
     testPromise(promise, 320, 480);
   });
 
-  asyncTest('Verarbeitung von ungültigen Quellen', function(){
-    stop(4);
+  test('Verarbeitung von ungültigen Quellen', function(){
     var invalidSources = [
-      42,
-      "Hallo Welt",
-      $('<div>'),
-      $('<div>')[0],
-      null
+      42, 'a', $('<div>'), $('<div>')[0], null, undefined
     ];
     invalidSources.forEach(function(source){
-      var error;
-      var promise = takeScreenshot(source);
-      promise.fail(function(err){
-        error = err;
-      });
-      promise.finally(function(){
-        var sourceType = Object.prototype.toString.call(source);
-        equal(promise.isRejected(), true,
-          'Promise für ' + sourceType + ' wird rejected');
-        equal(Object.prototype.toString.call(error), '[object Error]',
-          'Promise für ' + sourceType + ' wird mit Fehler-Objekt rejected');
-        start();
-      });
+      throws(function(){
+        takeScreenshot(source);
+      }, 'Exception beim Aufruf mit ungültiger Quelle');
+    });
+  });
+
+  asyncTest('Verarbeitung von im Prinzip gültigen Quellen, von denen aber wegen ungültigen Inhalts kein Screenshot gemacht werden kann',
+    function(){
+    var error;
+    var target = $('<canvas>').attr('width', 0).attr('height', 0);
+    var promise = takeScreenshot(target);
+    promise.fail(function(err){
+      error = err;
+    });
+    promise.finally(function(){
+      equal(promise.isRejected(), true,
+        'Promise wurde rejected');
+      equal(typeof error, 'object',
+        'Promise wurde mit Fehler-Objekt rejected');
+      start();
     });
   });
 
