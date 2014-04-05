@@ -2,7 +2,7 @@ function handleError(message){
   return function(err){
     window.alert(message + ': ' + err.message);
     $('body').addClass('error');
-    console.error(err);
+    console.log(err);
   };
 }
 
@@ -22,8 +22,9 @@ require(['jquery',
 
   var streamPromise = requestStreamUrl()
     .then(renderStreamUrl)
-    .then(function($video){
-      return Q($video.appendTo('#VideoWrapper'));
+    .then(function(video){
+      video.play();
+      return Q($(video).appendTo('#VideoWrapper'));
     })
     .fail(handleError('Kann Videostream nicht anzeigen'));
 

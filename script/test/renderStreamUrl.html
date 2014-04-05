@@ -9,6 +9,7 @@
 
 <script>
   QUnit.config.autostart = false;
+  QUnit.config.reorder = false;
   var require = { baseUrl: '../' };
 </script>
 <script src="../requireconfig.js"></script>
@@ -22,51 +23,23 @@ require(['renderStreamUrl', 'q'], function(renderStreamUrl, Q){
     equal(renderStreamUrl.length, 1, 'Modul-API akzeptiert ein Argument');
   });
 
-  var testVideo = function successCallback(video){
-    var $video = $(video);
-    ok(true, 'Promise wird aufgelöst');
-    ok($video.is('video'), 'Promise wird mit Video-Element aufgelöst');
-    ok($video[0].paused === false, 'Zurückgegebenes Video wird abgespielt');
-    $video[0].pause();
-    $video.remove();
-    start();
-  };
-
-  asyncTest('Rendern eines Videos von URL-String', function(){
-    var source = 'assets/test.webm';
-    var videoPromise = renderStreamUrl(source);
-    ok(typeof videoPromise.then === 'function', 'Modul-API gibt ein Promise zurück');
-    videoPromise.then(testVideo, function errorCallback(){
-      throw new Error('Fehler: Promise wurde rejected!');
-    })
-  });
-
-  asyncTest('Rendern eines Videos aus einem Promise', function(){
-    var deferred = Q.defer();
-    var videoPromise = renderStreamUrl(deferred.promise);
-    ok(typeof videoPromise.then === 'function', 'Modul-API gibt ein Promise zurück');
-    videoPromise.then(testVideo, function errorCallback(){
-      throw new Error('Fehler: Promise wurde rejected!');
-    })
-    deferred.resolve('assets/test.webm');
-  });
-
-  asyncTest('Verarbeitung von ungültigen Quellen', function(){
-    stop(3);
-    var invalidSources = [
-      42,
-      "Hallo Welt",
-      $('<div>')[0],
-      null
-    ];
-    invalidSources.forEach(function(source){
-      var videoPromise = renderStreamUrl(source);
-      videoPromise.then(function successCallback(){
-        throw new Error('Fehler: Promise wurde aufgelöst');
-      }, function errorCallback(){
-        ok(true, 'Ungültige Quellen werden abgelehnt');
-        start();
-      });
+  asyncTest('Rendern eines Videos', function(){
+    var result;
+    var videoPromise = renderStreamUrl('assets/test.webm');
+    ok(typeof videoPromise.then === 'function',
+      'Modul-API gibt ein Promise zurück');
+    videoPromise.then(function successCallback(video){
+      result = video;
+    });
+    videoPromise.finally(function(){
+      equal(videoPromise.isFulfilled(), true,
+        'Promise wurde aufgelöst');
+      equal(typeof result, 'object',
+        'Promise wird mit Objekt aufgelöst');
+      equal(result.toString(), '[object HTMLVideoElement]',
+        'Promise wird mit Video-Element aufgelöst');
+      ok(result.readyState >= 2, 'Video-Element ist abspielbereit');
+      start();
     });
   });
 

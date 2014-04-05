@@ -4,31 +4,16 @@ define(['jquery', 'q'], function($, Q){
 
     var deferred = Q.defer();
 
-    var render = function(url){
-      var $video = $('<video>').attr('src', url);
-      $video.on({
-        canplay: function onVideoCanPlay(){
-          $video.get(0).play();
-          deferred.resolve($video);
+    $('<video>')
+      .attr('src', source)
+      .on({
+        canplay: function onVideoCanPlay(evt){
+          deferred.resolve(evt.target);
         },
         error: function onVideoError(err){
           deferred.reject(err);
         }
       });
-    };
-
-    if(typeof source === 'string'){
-      render(source);
-    }
-    else if(source && typeof source.then === 'function'){
-      source.then(render, function errorCallback(err){
-        deferred.reject(err);
-      });
-    }
-    else {
-      var err = 'Kann Quelle nicht verarbeiten';
-      deferred.reject(err);
-    }
 
     return deferred.promise;
 
