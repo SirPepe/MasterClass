@@ -36,8 +36,8 @@ require(['requestStream'], function(requestStream){
         'Promise wurde aufgelöst');
       equal(typeof result, 'string',
         'Promise wird mit String aufgelöst');
-      equal(URI(result).protocol(), 'blob',
-        'Promise wird mit Blob-URL aufgelöst');
+      ok(['blob', 'mediastream'].indexOf(URI(result).protocol()) !== -1,
+        'Promise wird mit Blob/Mediastream-URL aufgelöst');
       start();
     });
   });
