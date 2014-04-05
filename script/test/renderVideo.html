@@ -19,14 +19,16 @@
 require(['renderVideo', 'q'], function(renderVideo, Q){
 
   test('Modul-API', function(){
-    ok(typeof renderVideo === 'function', 'Modul-API ist eine Funktion');
-    equal(renderVideo.length, 1, 'Modul-API akzeptiert ein Argument');
+    equal(typeof renderVideo, 'function',
+      'Modul-API ist eine Funktion');
+    equal(renderVideo.length, 1,
+      'Modul-API akzeptiert ein Argument');
   });
 
   asyncTest('Rendern einer Videodatei', function(){
     var result;
     var videoPromise = renderVideo('assets/test.webm');
-    ok(typeof videoPromise.then === 'function',
+    equal(typeof videoPromise.then, 'function',
       'Modul-API gibt ein Promise zurück');
     videoPromise.then(function(video){
       result = video;
@@ -55,6 +57,15 @@ require(['renderVideo', 'q'], function(renderVideo, Q){
       equal(typeof error, 'object',
         'Promise wurde mit Fehler-Objekt rejected');
       start();
+    });
+  });
+
+  test('Verarbeitung von ungültigen Quellen', function(){
+    var invalidSources = [ 42, undefined, null, [], {} ];
+    invalidSources.forEach(function(source){
+      throws(function(){
+        renderVideo(source);
+      }, 'Exception beim Aufruf mit ungültiger Quelle');
     });
   });
 

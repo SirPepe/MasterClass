@@ -3,6 +3,7 @@
   -------------
   * renderVideo(sourceUrl) stellt ein Video bereit, das das unter "sourceUrl"
     hinterlegte Video abspielt
+    * ist sourceUrl kein String, wird eine Exception geworfen
   * renderVideo(sourceUrl) gibt ein Promise auf ein abspielbereites
     Video-Element zurück
     * wenn das Video geladen werden kann und das Element einen abspielbereiten
@@ -14,6 +15,11 @@
 define(['jquery', 'q'], function($, Q){
 
   return function renderVideo(sourceUrl){
+
+    if(typeof sourceUrl !== 'string'){
+      throw new Error('Keine gültige Video-URL angegeben ' +
+        '("' + typeof sourceUrl + '" statt "string"');
+    }
 
     var deferred = Q.defer();
 
