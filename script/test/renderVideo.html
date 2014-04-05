@@ -23,12 +23,12 @@ require(['renderVideo', 'q'], function(renderVideo, Q){
     equal(renderVideo.length, 1, 'Modul-API akzeptiert ein Argument');
   });
 
-  asyncTest('Rendern eines Videos', function(){
+  asyncTest('Rendern einer Videodatei', function(){
     var result;
     var videoPromise = renderVideo('assets/test.webm');
     ok(typeof videoPromise.then === 'function',
       'Modul-API gibt ein Promise zurück');
-    videoPromise.then(function successCallback(video){
+    videoPromise.then(function(video){
       result = video;
     });
     videoPromise.finally(function(){
@@ -39,6 +39,21 @@ require(['renderVideo', 'q'], function(renderVideo, Q){
       equal(result.toString(), '[object HTMLVideoElement]',
         'Promise wird mit Video-Element aufgelöst');
       ok(result.readyState >= 2, 'Video-Element ist abspielbereit');
+      start();
+    });
+  });
+
+  asyncTest('Behandlung einer fehlerhaften Video-URL', function(){
+    var error;
+    var videoPromise = renderVideo('ich/existiere/nicht.mp4');
+    videoPromise.fail(function(err){
+      error = err;
+    });
+    videoPromise.finally(function(){
+      equal(videoPromise.isRejected(), true,
+        'Promise wurde rejected');
+      equal(typeof error, 'object',
+        'Promise wurde mit Fehler-Objekt rejected');
       start();
     });
   });
