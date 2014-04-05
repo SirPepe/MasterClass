@@ -10,6 +10,7 @@
 
 <script>
   QUnit.config.autostart = false;
+  QUnit.config.reorder = false;
   var require = { baseUrl: '../' };
 </script>
 <script src="../requireconfig.js"></script>
@@ -18,18 +19,28 @@
 <script>
 require(['takeScreenshot'], function(takeScreenshot){
 
-  function testResult(blob, expectedWidth, expectedHeight){
-    equal(blob.toString(), '[object Blob]',
-      'Promise wird mit Blob-Objekt aufgelöst');
-    $('<img>')
-      .attr('src', window.URL.createObjectURL(blob))
-      .on('load', function(evt){
-        equal(evt.target.naturalWidth, expectedWidth,
-          'Screenshot-Breite entspricht der Quelle');
-        equal(evt.target.naturalHeight, expectedHeight,
-          'Screenshot-Höhe entspricht der Quelle');
-        start();
-      });
+  function testPromise(promise, expectedWidth, expectedHeight){
+    var result;
+    equal(typeof promise.then, 'function',
+      'Modul-API gibt Promise zurück');
+    promise.then(function(blob){
+      result = blob;
+    });
+    promise.finally(function(){
+      equal(promise.isFulfilled(), true,
+        'Promise wurde aufgelöst');
+      equal(result.toString(), '[object Blob]',
+        'Promise wird mit Blob-Objekt aufgelöst');
+      $('<img>')
+        .attr('src', window.URL.createObjectURL(result))
+        .on('load', function(evt){
+          equal(evt.target.naturalWidth, expectedWidth,
+            'Screenshot-Breite entspricht der Quelle');
+          equal(evt.target.naturalHeight, expectedHeight,
+            'Screenshot-Höhe entspricht der Quelle');
+          start();
+        });
+    });
   }
 
   test('Modul-API', function(){
@@ -43,55 +54,41 @@ require(['takeScreenshot'], function(takeScreenshot){
   asyncTest('Erstellen eines Screenshots mit IMG-Element', function(){
     $('<img>').attr('src', 'assets/image.png').on('load', function(evt){
       var promise = takeScreenshot(evt.target);
-      equal(typeof promise.then, 'function', 'Modul-API gibt Promise zurück');
-      promise.then(function resolveCallback(blob){
-        ok(true, 'Promise wird aufgelöst');
-        testResult(blob, evt.target.naturalWidth, evt.target.naturalHeight);
-      }, function rejectCallback(err){
-        throw new Error('Fehler: Promise wurde rejected!');
-      });
+      testPromise(promise, evt.target.naturalWidth, evt.target.naturalHeight);
     });
   });
 
   asyncTest('Erstellen eines Screenshots mit Video-Element', function(){
     $('<video>').attr('src', 'assets/test.webm').on('canplay', function(evt){
       var promise = takeScreenshot(evt.target);
-      equal(typeof promise.then, 'function', 'Modul-API gibt Promise zurück');
-      promise.then(function resolveCallback(blob){
-        ok(true, 'Promise wird aufgelöst');
-        testResult(blob, evt.target.videoWidth, evt.target.videoHeight);
-      }, function rejectCallback(err){
-        throw new Error('Fehler: Promise wurde rejected!');
-        start();
-      });
+      testPromise(promise, evt.target.videoWidth, evt.target.videoHeight);
     });
   });
 
   asyncTest('Erstellen eines Screenshots mit Canvas-Element', function(){
     var target = $('<canvas>').attr({ width: 320, height: 480 }).get(0);
     var promise = takeScreenshot(target);
-    equal(typeof promise.then, 'function', 'Modul-API gibt Promise zurück');
-    promise.then(function resolveCallback(blob){
-      ok(true, 'Promise wird aufgelöst');
-      testResult(blob, 320, 480);
-    }, function rejectCallback(err){
-      throw new Error('Fehler: Promise wurde rejected!');
-      start();
-    });
+    testPromise(promise, 320, 480);
   });
 
   asyncTest('Erstellen eines Screenshots mit jQuery-IMG-Objekt', function(){
     $('<img>').attr('src', 'assets/image.png').on('load', function(evt){
       var promise = takeScreenshot($(evt.target));
-      equal(typeof promise.then, 'function', 'Modul-API gibt Promise zurück');
-      promise.then(function resolveCallback(blob){
-        ok(true, 'Promise wird aufgelöst');
-        testResult(blob, evt.target.naturalWidth, evt.target.naturalHeight);
-      }, function rejectCallback(err){
-        throw new Error('Fehler: Promise wurde rejected!');
-        start();
-      });
+      testPromise(promise, evt.target.naturalWidth, evt.target.naturalHeight);
     });
+  });
+
+  asyncTest('Erstellen eines Screenshots mit jQuery-Video-Objekt', function(){
+    $('<video>').attr('src', 'assets/test.webm').on('canplay', function(evt){
+      var promise = takeScreenshot($(evt.target));
+      testPromise(promise, evt.target.videoWidth, evt.target.videoHeight);
+    });
+  });
+
+  asyncTest('Erstellen eines Screenshots mit jQuery-Canvas-Objekt', function(){
+    var target = $('<canvas>').attr({ width: 320, height: 480 }).get(0);
+    var promise = takeScreenshot($(target));
+    testPromise(promise, 320, 480);
   });
 
   asyncTest('Verarbeitung von ungültigen Quellen', function(){
@@ -104,17 +101,19 @@ require(['takeScreenshot'], function(takeScreenshot){
       null
     ];
     invalidSources.forEach(function(source){
+      var error;
       var promise = takeScreenshot(source);
-      promise.then(function resolveCallback(){
-        throw new Error('Fehler: Promise wurde aufgelöst!');
+      promise.fail(function(err){
+        error = err;
+      });
+      promise.finally(function(){
+        var sourceType = Object.prototype.toString.call(source);
+        equal(promise.isRejected(), true,
+          'Promise für ' + sourceType + ' wird rejected');
+        equal(Object.prototype.toString.call(error), '[object Error]',
+          'Promise für ' + sourceType + ' wird mit Fehler-Objekt rejected');
         start();
-      }, function rejectCallback(err){
-        var type = Object.prototype.toString.call(source);
-        ok(true, 'Promise wird bei ungültiger Quelle ' + type + ' rejected');
-        equal(Object.prototype.toString.call(err), '[object Error]',
-          'Promise für ' + type + ' wird mit Fehler-Objekt rejected');
-        start();
-      })
+      });
     });
   });
 

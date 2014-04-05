@@ -24,7 +24,8 @@ require(['jquery',
     .then(renderVideo)
     .then(function(video){
       video.play();
-      return Q($(video).appendTo('#VideoWrapper'));
+      $(video).appendTo('#VideoWrapper');
+      return Q(video);
     })
     .fail(handleError('Kann Videostream nicht anzeigen'));
 

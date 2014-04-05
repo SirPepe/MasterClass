@@ -43,7 +43,7 @@ define(['jquery', 'q'], function($, Q){
       });
 
       context.drawImage($(source).get(0), 0, 0);
-      $canvas.get(0).toBlob(function blobCallback(blob){
+      $canvas.get(0).toBlob(function(blob){
         deferred.resolve(blob);
       });
 
