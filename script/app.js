@@ -42,18 +42,18 @@ require(['jquery',
     .fail(handleError('Kann Videostream nicht anzeigen'));
 
   // Wenn die App bereit ist, wird der Button aktiviert
-  streamPromise
-    .then(function(video){
-      $('#SnapButton')
-        .attr('disabled', false)
-        .on('click', function(){
-          takePhoto(video)
-            .then(createGalleryImage)
-            .then(displayGalleryImage)
-            .fail(handleError('Konnte Foto nicht anzeigen'));
-        });
+  streamPromise.then(function(video){
+    $('#SnapButton')
+      .attr('disabled', false)
+      .on('click', function(){
+        takePhoto(video)
+          .then(createGalleryImage)
+          .then(displayGalleryImage)
+          .fail(handleError('Konnte Foto nicht anzeigen'));
       });
+    });
 
+  // Screenshot und Thumbnail erstellen, Photo-Objekt zurückgeben
   function takePhoto(source){
     return takeScreenshot(source).then(function(imgBlob){
       return createThumbnail(imgBlob, 100, 100).then(function(thumbBlob){
@@ -62,6 +62,7 @@ require(['jquery',
     }).fail(handleError('Konnte Foto nicht erstellen'));
   }
 
+  // Photo-Objekt als jQuery-DOM-Objekt für die Galerie aufbereiten
   function createGalleryImage(photo){
     var $wrapper = $('<div>');
     var $link = $('<a>').attr('href', photo.fullUrl);
@@ -73,6 +74,7 @@ require(['jquery',
     return $wrapper;
   }
 
+  // jQuery-DOM-Objekt in die Galerie einhängen
   function displayGalleryImage($image){
     return $image.appendTo('#Gallery');
   }
