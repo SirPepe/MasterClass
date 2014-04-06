@@ -1,9 +1,9 @@
 /*
   Anforderungen
   -------------
-  1.  renderVideo(sourceUrl) stellt ein Video bereit, das das unter "sourceUrl"
-      hinterlegte Video abspielt
-      1.1 ist "sourceUrl" kein String, wird eine Exception geworfen
+  1.  renderVideo(sourceUrl) stellt ein Video-Element bereit, das das unter
+      "sourceUrl" hinterlegte Video abspielen kann
+      1.1 ist "sourceUrl" kein String, wird ein Error-Objekt geworfen
   2.  renderVideo(sourceUrl) gibt ein Promise auf ein abspielbereites
       Video-Element zurück
       2.1 wenn das Video geladen werden kann und das Element einen
