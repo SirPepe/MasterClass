@@ -32,12 +32,12 @@ define(['jquery', 'q'], function($, Q){
     var context = $canvas.get(0).getContext('2d');
 
     // 2.1.1 Canvas auf die Maße des Quell-Elements bringen
-    var sourceWidth =  source.naturalWidth ||    // Bild
-                       source.videoWidth ||      // Video
-                       $(source).attr('width');  // Canvas
-    var sourceHeight = source.naturalHeight ||   // Bild
-                       source.videoHeight ||     // Video
-                       $(source).attr('height'); // Canvas
+    var sourceWidth =  $(source).get(0).naturalWidth ||  // Bild
+                       $(source).get(0).videoWidth ||    // Video
+                       $(source).attr('width');          // Canvas
+    var sourceHeight = $(source).get(0).naturalHeight || // Bild
+                       $(source).get(0).videoHeight ||   // Video
+                       $(source).attr('height');         // Canvas
     $canvas.attr({
       width: sourceWidth,
       height: sourceHeight
