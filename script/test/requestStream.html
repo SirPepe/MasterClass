@@ -45,7 +45,7 @@ require(['requestStream'], function(requestStream){
   asyncTest('Fehlschlagendes/abgelehntes Stream-Abfragen', function(){
     var error;
     var streamPromise = requestStream();
-    streamPromise.fail(function failCallback(err){
+    streamPromise.fail(function(err){
       error = err;
     });
     streamPromise.finally(function(){
