@@ -9,8 +9,8 @@
        2.1 bei erfolgreichem Screenshot wird das Promise mit dem Screenshot als
            Blob-Objekt aufgelöst
            2.1.1 der Screenshot hat die gleichen Maße wie das Element "quelle"
-       2.2 bei Fehler während des Screenshot-Erstellens wird das Promise mit einem
-           Error rejected
+       2.2 bei Fehler während des Screenshot-Erstellens wird das Promise mit
+           einem Error rejected
 */
 
 define(['jquery', 'q'], function($, Q){
@@ -47,7 +47,7 @@ define(['jquery', 'q'], function($, Q){
       context.drawImage($(source).get(0), 0, 0);
       $canvas.get(0).toBlob(deferred.resolve); // 2.1 Promise mit Blob auflösen
     } catch(e){
-      deferred.reject(e); // 2.2 Promise mit Blob rejecten
+      deferred.reject(e); // 2.2 Promise mit Fehler rejecten
     }
 
     // 2. Promise wird zurückgegeben
