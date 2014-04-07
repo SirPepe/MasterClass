@@ -1,9 +1,13 @@
 // Erzeugt einen Error Handler mit fester Nachricht
 function handleError(message){
   return function(err){
-    window.alert(message + ': ' + err.message);
+    var msg = message + "\n" + err.name;
+    if(err.message){
+      msg += ': ' + err.message;
+    }
+    window.alert(msg);
     $('body').addClass('error');
-    console.log(err);
+    console.dir(err);
   };
 }
 
@@ -55,11 +59,14 @@ require(['jquery',
 
   // Screenshot und Thumbnail erstellen, Photo-Objekt zurückgeben
   function takePhoto(source){
-    return takeScreenshot(source).then(function(imgBlob){
-      return createThumbnail(imgBlob, 100, 100).then(function(thumbBlob){
-        return new Photo(imgBlob, thumbBlob);
-      });
-    }).fail(handleError('Konnte Foto nicht erstellen'));
+    return Q.all([
+      takeScreenshot(source),
+      createThumbnail(source, 100, 100)
+    ])
+    .spread(function(full, thumb){
+      return new Photo(full, thumb);
+    })
+    .fail(handleError('Konnte Foto nicht erstellen'));
   }
 
   // Photo-Objekt als jQuery-DOM-Objekt für die Galerie aufbereiten
