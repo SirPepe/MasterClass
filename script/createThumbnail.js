@@ -57,8 +57,8 @@ define(['jquery', 'q'], function($, Q){
       var w = maxWidth;
       var h = maxHeight;
       return {
-        width: Math.round(w > h * r ? h * r : w),
-        height: Math.round(w > h * r ? h : w / r)
+        width: Math.round(w > h * r ? h * r : w) || 0,
+        height: Math.round(w > h * r ? h : w / r) || 0
       };
     }
 
@@ -82,6 +82,7 @@ define(['jquery', 'q'], function($, Q){
       $('<img>')
         .attr('src', window.URL.createObjectURL(source))
         .on('load', function(evt){
+          // Promise mit Promise auflösen
           deferred.resolve(createThumbnail(evt.target, maxWidth, maxHeight));
         });
       return deferred.promise;
