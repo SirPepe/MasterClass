@@ -13,7 +13,7 @@
   QUnit.config.reorder = false;
   var require = { baseUrl: '../' };
 </script>
-<script src="../requireconfig.js"></script>
+<script src="../lib/requireconfig.js"></script>
 <script src="../lib/require.js"></script>
 
 <script>
@@ -138,20 +138,22 @@ require(['createThumbnail', 'q'], function(createThumbnail, Q){
     });
   });
 
-  asyncTest('Verarbeitung von im Prinzip gültigen Quellen, von denen aber wegen ungültigen Inhalts kein Screenshot gemacht werden kann',
+  asyncTest('Verarbeitung von im Prinzip gültigen Quellen mit fehlerhaftem Inhalt',
     function(){
-    var error;
-    var target = $('<canvas>').attr('width', 0).attr('height', 0);
-    var promise = createThumbnail(target, 100, 100);
-    promise.fail(function(err){
-      error = err;
-    });
-    promise.finally(function(){
-      equal(promise.isRejected(), true,
-        'Promise wurde rejected');
-      equal(typeof error, 'object',
-        'Promise wurde mit Fehler-Objekt rejected');
-      start();
+    // Fehler wg. Cross-Origin-Image
+    $('<img>').attr('src', 'http://placekitten.com/200/300').on('load', function(evt){
+      var error;
+      var promise = createThumbnail(evt.target, 100, 100);
+      promise.fail(function(err){
+        error = err;
+      });
+      promise.finally(function(){
+        equal(promise.isRejected(), true,
+          'Promise wurde rejected');
+        equal(typeof error, 'object',
+          'Promise wurde mit Fehler-Objekt rejected');
+        start();
+      });
     });
   });
 

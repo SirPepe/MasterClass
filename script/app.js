@@ -1,28 +1,7 @@
-// Erzeugt einen Error Handler mit fester Nachricht
-function handleError(message){
-  return function(err){
-    var msg = message + "\n" + err.name;
-    if(err.message){
-      msg += ': ' + err.message;
-    }
-    window.alert(msg);
-    $('body').addClass('error');
-    console.dir(err);
-  };
-}
-
-require(['jquery',
-  'q',
-  'requestStream',
-  'renderVideo',
-  'takeScreenshot',
-  'createThumbnail'
-], function($,
-  Q,
-  requestStream,
-  renderVideo,
-  takeScreenshot,
-  createThumbnail
+require(['jquery', 'q', 'handleError',
+  'requestStream', 'renderVideo', 'takeScreenshot', 'createThumbnail'
+], function($, Q, handleError,
+  requestStream, renderVideo, takeScreenshot, createThumbnail
 ){
 
   // Constructorfunktion für Foto-Objekte
