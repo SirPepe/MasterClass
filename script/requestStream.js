@@ -15,14 +15,20 @@ define(['q'], function(Q){
 
     var deferred = Q.defer();
 
-    // 1. Zufgriff auf die Kamera anfordern
+    // 1. Zugriff auf die Kamera anfordern
     navigator.getUserMedia({
       video: true,
       audio: false
-    }, function(stream){
+    }, erfolgCallback, fehlerCallback);
+
+    // 2.1 Promise mit Stream-Objekt auflösen
+    function erfolgCallback(stream){
       var url = window.URL.createObjectURL(stream);
-      deferred.resolve(url); // 2.1 Promise mit Stream-Objekt auflösen
-    }, function(err){        // 2.2 Promise mit Error-Objekt rejecten
+      deferred.resolve(url);
+    }
+
+    // 2.2 Promise mit Error-Objekt rejecten
+    function fehlerCallback(err){
       // In Chrome ist "err" schon ein Objekt, im Firefox nicht
       if(typeof err === 'string'){
         deferred.reject(new Error(err));
@@ -30,7 +36,7 @@ define(['q'], function(Q){
       else {
         deferred.reject(err);
       }
-    });
+    }
 
     // 2. Promise zurückgeben
     return deferred.promise;

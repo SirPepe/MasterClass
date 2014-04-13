@@ -25,6 +25,7 @@ define(['jquery', 'q'], function($, Q){
 
     var deferred = Q.defer();
 
+    // Video-Element anlegen, Quelle vergeben, auf Events warten
     $('<video>').attr('src', sourceUrl).on({
 
         // 2.1 Promise mit Video-Element auflösen, sobald es abspielbereit ist

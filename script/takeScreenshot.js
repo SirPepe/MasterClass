@@ -8,7 +8,9 @@
   2.   takeScreenshot(quelle) gibt ein Promise zurück
        2.1 bei erfolgreichem Screenshot wird das Promise mit dem Screenshot als
            Blob-Objekt aufgelöst
-           2.1.1 der Screenshot hat die gleichen Maße wie das Element "quelle"
+           2.1.1 der Screenshot hat die gleichen Maße wie die in "quelle"
+                 verwendete Datei (Bild, Video) bzw. das Element "quelle" selbst
+                 (z.B. bei Canvas-Elementen)
        2.2 bei Fehler während des Screenshot-Erstellens wird das Promise mit
            einem Error rejected
 */
