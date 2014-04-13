@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Video-Test</title>
+<script src="../lib/shims.js"></script>
+<link rel="stylesheet" href="../lib/qunit.css">
+<script src="../lib/qunit.js"></script>
+
+<div id="qunit"></div>
+
+<script>
+  QUnit.config.autostart = false;
+  QUnit.config.reorder = false;
+  var require = { baseUrl: '../' };
+</script>
+<script src="../lib/requireconfig.js"></script>
+<script src="../lib/require.js"></script>
+
+<script>
+require(['renderVideo', 'q'], function(renderVideo, Q){
+
+  test('Modul-API', function(){
+    equal(typeof renderVideo, 'function',
+      'Modul-API ist eine Funktion');
+    equal(renderVideo.length, 1,
+      'Modul-API akzeptiert ein Argument');
+  });
+
+  asyncTest('Rendern einer Videodatei', function(){
+    var result;
+    var videoPromise = renderVideo('assets/test.webm');
+    equal(typeof videoPromise.then, 'function',
+      'Modul-API gibt ein Promise zurück');
+    videoPromise.then(function(video){
+      result = video;
+    });
+    videoPromise.finally(function(){
+      equal(videoPromise.isFulfilled(), true,
+        'Promise wurde aufgelöst');
+      equal(typeof result, 'object',
+        'Promise wird mit Objekt aufgelöst');
+      equal(result.toString(), '[object HTMLVideoElement]',
+        'Promise wird mit Video-Element aufgelöst');
+      ok(result.readyState >= 2, 'Video-Element ist abspielbereit');
+      start();
+    });
+  });
+
+  asyncTest('Behandlung einer fehlerhaften Video-URL', function(){
+    var error;
+    var videoPromise = renderVideo('ich/existiere/nicht.mp4');
+    videoPromise.fail(function(err){
+      error = err;
+    });
+    videoPromise.finally(function(){
+      equal(videoPromise.isRejected(), true,
+        'Promise wurde rejected');
+      equal(typeof error, 'object',
+        'Promise wurde mit Fehler-Objekt rejected');
+      start();
+    });
+  });
+
+  test('Verarbeitung von ungültigen Quellen', function(){
+    var invalidSources = [ 42, undefined, null, [], {} ];
+    invalidSources.forEach(function(source){
+      throws(function(){
+        renderVideo(source);
+      }, 'Exception beim Aufruf mit ungültiger Quelle');
+    });
+  });
+
+  QUnit.start();
+
+});
+</script>

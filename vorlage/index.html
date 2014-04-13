@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="de">
+<head>
+	<meta charset="utf-8">
+	<title>Say Cheese!</title>
+	<link rel="stylesheet" href="styles.css" type="text/css" media="screen">
+</head>
+<body>
+
+
+<div id="VideoWrapper"> <!-- Erhält im Fehlerfall die Klasse "fail" -->
+  <!-- Hier landet das <video>-Element -->
+</div>
+
+<button id="SnapButton" disabled>Cheese!</button>
+
+<div id="Gallery">
+  <!-- Hier landen <div>-Elemente mit <img>-Elementen darin -->
+</div>
+
+
+<script src="script/lib/requireconfig.js"></script>
+<script src="script/lib/shims.js"></script>
+<script src="script/lib/require.js" data-main="script/app.js"></script>
+
+</body>
+</html>

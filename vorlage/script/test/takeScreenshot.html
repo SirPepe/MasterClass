@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Screenshot-Test</title>
+<script src="../lib/shims.js"></script>
+<link rel="stylesheet" href="../lib/qunit.css">
+<script src="../lib/qunit.js"></script>
+
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+
+<script>
+  QUnit.config.autostart = false;
+  QUnit.config.reorder = false;
+  var require = { baseUrl: '../' };
+</script>
+<script src="../lib/requireconfig.js"></script>
+<script src="../lib/require.js"></script>
+
+<script>
+require(['takeScreenshot'], function(takeScreenshot){
+
+  function testPromise(promise, expectedWidth, expectedHeight){
+    var result;
+    equal(typeof promise.then, 'function',
+      'Modul-API gibt Promise zurück');
+    promise.then(function(blob){
+      result = blob;
+    });
+    promise.finally(function(){
+      equal(promise.isFulfilled(), true,
+        'Promise wurde aufgelöst');
+      equal(result.toString(), '[object Blob]',
+        'Promise wird mit Blob-Objekt aufgelöst');
+      $('<img>')
+        .attr('src', window.URL.createObjectURL(result))
+        .on('load', function(evt){
+          equal(evt.target.naturalWidth, expectedWidth,
+            'Screenshot-Breite entspricht der Quelle');
+          equal(evt.target.naturalHeight, expectedHeight,
+            'Screenshot-Höhe entspricht der Quelle');
+          start();
+        });
+    });
+  }
+
+  test('Modul-API', function(){
+    ok(typeof takeScreenshot === 'function', 'Modul-API ist eine Funktion');
+    equal(takeScreenshot.length, 1, 'Modul-API akzeptiert ein Argument');
+    throws(function(){
+      takeScreenshot();
+    }, 'Exception beim Aufruf ohne Quelle');
+  });
+
+  asyncTest('Erstellen eines Screenshots mit IMG-Element', function(){
+    $('<img>').attr('src', 'assets/image.png').on('load', function(evt){
+      var promise = takeScreenshot(evt.target);
+      testPromise(promise, evt.target.naturalWidth, evt.target.naturalHeight);
+    });
+  });
+
+  asyncTest('Erstellen eines Screenshots mit Video-Element', function(){
+    $('<video>').attr('src', 'assets/test.webm').on('canplay', function(evt){
+      var promise = takeScreenshot(evt.target);
+      testPromise(promise, evt.target.videoWidth, evt.target.videoHeight);
+    });
+  });
+
+  asyncTest('Erstellen eines Screenshots mit Canvas-Element', function(){
+    var target = $('<canvas>').attr({ width: 320, height: 480 }).get(0);
+    var promise = takeScreenshot(target);
+    testPromise(promise, 320, 480);
+  });
+
+  asyncTest('Erstellen eines Screenshots mit jQuery-IMG-Objekt', function(){
+    $('<img>').attr('src', 'assets/image.png').on('load', function(evt){
+      var promise = takeScreenshot($(evt.target));
+      testPromise(promise, evt.target.naturalWidth, evt.target.naturalHeight);
+    });
+  });
+
+  asyncTest('Erstellen eines Screenshots mit jQuery-Video-Objekt', function(){
+    $('<video>').attr('src', 'assets/test.webm').on('canplay', function(evt){
+      var promise = takeScreenshot($(evt.target));
+      testPromise(promise, evt.target.videoWidth, evt.target.videoHeight);
+    });
+  });
+
+  asyncTest('Erstellen eines Screenshots mit jQuery-Canvas-Objekt', function(){
+    var target = $('<canvas>').attr({ width: 320, height: 480 }).get(0);
+    var promise = takeScreenshot($(target));
+    testPromise(promise, 320, 480);
+  });
+
+  test('Verarbeitung von ungültigen Quellen', function(){
+    var invalidSources = [
+      42, 'a', $('<div>'), $('<div>')[0], null, undefined
+    ];
+    invalidSources.forEach(function(source){
+      throws(function(){
+        takeScreenshot(source);
+      }, 'Exception beim Aufruf mit ungültiger Quelle');
+    });
+  });
+
+  asyncTest('Verarbeitung von im Prinzip gültigen Quellen mit fehlerhaftem Inhalt',
+    function(){
+    // Fehler wg. Cross-Origin-Image
+    $('<img>').attr('src', 'http://placekitten.com/200/300').on('load', function(evt){
+      var error;
+      var promise = takeScreenshot(evt.target);
+      promise.fail(function(err){
+        error = err;
+      });
+      promise.finally(function(){
+        equal(promise.isRejected(), true,
+          'Promise wurde rejected');
+        equal(typeof error, 'object',
+          'Promise wurde mit Fehler-Objekt rejected');
+        start();
+      });
+    });
+  });
+
+  QUnit.start();
+
+});
+</script>

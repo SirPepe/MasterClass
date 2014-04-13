@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Thumbnail-Test</title>
+<script src="../lib/shims.js"></script>
+<link rel="stylesheet" href="../lib/qunit.css">
+<script src="../lib/qunit.js"></script>
+
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+
+<script>
+  QUnit.config.autostart = false;
+  QUnit.config.reorder = false;
+  var require = { baseUrl: '../' };
+</script>
+<script src="../lib/requireconfig.js"></script>
+<script src="../lib/require.js"></script>
+
+<script>
+var imageTestSizes = (function(){
+  var r = 256 / 245;
+  return [
+    { width: 100, height: 100 },
+    { width: 72, height: 100 },
+    { width: 100, height: 72 }
+  ].map(function(size){
+    var w = size.width;
+    var h = size.height;
+    size.expectedWidth = Math.round(w > h * r ? h * r : w);
+    size.expectedHeight = Math.round(w > h * r ? h : w / r);
+    return size;
+  });
+})();
+
+require(['createThumbnail', 'q'], function(createThumbnail, Q){
+
+  function runTestWith(source, size){
+    var result;
+    var promise = createThumbnail(source, size.width, size.height);
+    equal(typeof promise.then, 'function',
+      'Modul-API gibt ein Promise zurück');
+    promise.then(function(blob){
+      result = blob;
+    });
+    promise.finally(function(){
+      equal(promise.isFulfilled(), true,
+        'Promise wurde aufgelöst');
+      equal(result.toString(), '[object Blob]',
+        'Promise wird mit Blob aufgelöst');
+      getImage(window.URL.createObjectURL(result), function(img){
+        testImageDimensions(img, size);
+        start();
+      });
+    });
+  }
+
+  function testImageDimensions(img, size){
+    var imgWidth = img.naturalWidth;
+    var imgHeight = img.naturalHeight
+    ok(imgWidth > imgHeight, 'Bild bleibt breiter als hoch');
+    equal(imgWidth, size.expectedWidth, 'Bild-Breite ' + size.expectedWidth);
+    equal(imgHeight, size.expectedHeight, 'Bild-Höhe ' + size.expectedHeight);
+  }
+
+  function getImage(src, callback){
+    var img = new Image();
+    img.src = src;
+    img.onload = function(){
+      callback(img);
+    };
+  }
+
+  function getBlob(callback, url, type){
+    if(!url) url = 'assets/image.png';
+    if(!type) type = 'image/png';
+    var req = new XMLHttpRequest();
+    req.open('GET', url, true);
+    req.responseType = 'arraybuffer';
+    req.onload = function(evt){
+      var blob = new Blob([evt.target.response], { type: type });
+      callback(blob);
+    };
+    req.send(null);
+  }
+
+  test('Modul-API', function(){
+    equal(typeof createThumbnail, 'function',
+      'Modul-API ist eine Funktion');
+    equal(createThumbnail.length, 3,
+      'Modul-API akzeptiert drei Argumente');
+    throws(function(){
+      createThumbnail();
+    }, 'Exception beim Aufruf ohne Argument');
+    throws(function(){
+      createThumbnail(null);
+    }, 'Exception beim Aufruf mit einem Argument');
+    throws(function(){
+      createThumbnail(null, 42);
+    }, 'Exception beim Aufruf mit 2 Argumenten');
+  });
+
+  // Thumb aus img-Element
+  getImage('assets/image.png', function(img){
+    imageTestSizes.forEach(function(size){
+      asyncTest(
+        'Thumbnail (max ' + size.width + 'x' + size.height + ') aus Bild',
+        runTestWith.bind(undefined, img, size)
+      );
+      asyncTest(
+        'Thumbnail (max ' + size.width + 'x' + size.height + ') aus jQuery-Bild',
+        runTestWith.bind(undefined, $(img), size)
+      );
+    });
+  });
+
+  // Thumb aus Canvas-Element
+  imageTestSizes.forEach(function(size){
+    var $canvas = $('<canvas>').attr({ width: 256, height: 245 });
+    asyncTest(
+      'Thumbnail (max ' + size.width + 'x' + size.height + ') aus Canvas',
+      runTestWith.bind(undefined, $canvas.get(0), size)
+    );
+    asyncTest(
+      'Thumbnail (max ' + size.width + 'x' + size.height + ') aus jQuery-Canvas',
+      runTestWith.bind(undefined, $canvas, size)
+    );
+  });
+
+  // Thumb aus Video-Element das gleiche wie mit Img, daher kein Test :)
+
+  // Thumb aus Blob-Objekt
+  getBlob(function(blob){
+    imageTestSizes.forEach(function(size){
+      asyncTest(
+        'Thumbnail (max ' + size.width + 'x' + size.height + ') aus Blob',
+        runTestWith.bind(undefined, blob, size)
+      );
+    });
+  });
+
+  asyncTest('Verarbeitung von im Prinzip gültigen Quellen mit fehlerhaftem Inhalt',
+    function(){
+    // Fehler wg. Cross-Origin-Image
+    $('<img>').attr('src', 'http://placekitten.com/200/300').on('load', function(evt){
+      var error;
+      var promise = createThumbnail(evt.target, 100, 100);
+      promise.fail(function(err){
+        error = err;
+      });
+      promise.finally(function(){
+        equal(promise.isRejected(), true,
+          'Promise wurde rejected');
+        equal(typeof error, 'object',
+          'Promise wurde mit Fehler-Objekt rejected');
+        start();
+      });
+    });
+  });
+
+  QUnit.start();
+
+});
+</script>

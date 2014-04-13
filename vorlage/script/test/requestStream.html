@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Stream-Test</title>
+<script src="../lib/shims.js"></script>
+<script src="assets/URI.js"></script>
+<link rel="stylesheet" href="../lib/qunit.css">
+<script src="../lib/qunit.js"></script>
+
+<div id="qunit"></div>
+
+<script>
+  QUnit.config.autostart = false;
+  QUnit.config.reorder = false;
+  var require = { baseUrl: '../' };
+</script>
+<script src="../lib/requireconfig.js"></script>
+<script src="../lib/require.js"></script>
+
+<script>
+require(['requestStream'], function(requestStream){
+
+  test('Modul-API', function(){
+    ok(typeof requestStream === 'function', 'Modul-API ist eine Funktion');
+  });
+
+  asyncTest('Erfolgreiches Stream-Abfragen', function(){
+    var result;
+    var streamPromise = requestStream();
+    equal(typeof streamPromise.then, 'function',
+      'Modul-API gibt ein Promise zurück');
+    streamPromise.then(function(streamUrl){
+      result = streamUrl;
+    });
+    streamPromise.finally(function(){
+      equal(streamPromise.isFulfilled(), true,
+        'Promise wurde aufgelöst');
+      equal(typeof result, 'string',
+        'Promise wird mit String aufgelöst');
+      ok(['blob', 'mediastream'].indexOf(URI(result).protocol()) !== -1,
+        'Promise wird mit Blob/Mediastream-URL aufgelöst');
+      start();
+    });
+  });
+
+  asyncTest('Fehlschlagendes/abgelehntes Stream-Abfragen', function(){
+    var error;
+    var streamPromise = requestStream();
+    streamPromise.fail(function(err){
+      error = err;
+    });
+    streamPromise.finally(function(){
+      equal(streamPromise.isRejected(), true,
+        'Promise wurde rejected');
+      equal(typeof error, 'object',
+        'Promise wurde mit Fehler-Objekt rejected');
+      start();
+    });
+  });
+
+  QUnit.start();
+
+});
+</script>
