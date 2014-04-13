@@ -13,9 +13,8 @@ require(['jquery', 'q', 'handleError',
     this.thumbUrl = window.URL.createObjectURL(thumbBlob);
   }
 
-  // Stream anfragen, als Video einblenden und ein Promise
-  // für das Video-Element zurückgeben
-  var streamPromise = requestStream()
+  // Stream anfragen, als Video einblenden und Video zurückgeben
+  var videoPromise = requestStream()
     .then(renderVideo)
     .then(function(video){
       video.play();
@@ -24,11 +23,12 @@ require(['jquery', 'q', 'handleError',
     })
     .fail(handleError('Kann Videostream nicht anzeigen'));
 
-  // Wenn die App bereit ist, wird der Button aktiviert
-  streamPromise.then(function(video){
+  // Wenn das Video bereit ist, wird der Button aktiviert
+  videoPromise.then(function(video){
     $('#SnapButton')
       .attr('disabled', false)
       .on('click', function(){
+        // Foto aufnehmen und anzeigen
         takePhoto(video)
           .then(createGalleryImage)
           .then(displayGalleryImage)
@@ -65,6 +65,7 @@ require(['jquery', 'q', 'handleError',
     return $image.appendTo('#Gallery');
   }
 
+  // Bilder aus der Galerie löschen
   $('#Gallery').on('click', 'button.close', function(evt){
     $(evt.target).parent().remove();
   });
