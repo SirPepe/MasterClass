@@ -32,7 +32,7 @@ var imageTestSizes = (function(){
   });
 })();
 
-require(['createThumbnail', 'q'], function(createThumbnail, Q){
+require(['createThumbnail', 'q', 'jquery'], function(createThumbnail, Q, $){
 
   function runTestWith(source, size){
     var result;

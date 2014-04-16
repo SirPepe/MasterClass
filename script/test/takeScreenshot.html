@@ -17,7 +17,7 @@
 <script src="../lib/require.js"></script>
 
 <script>
-require(['takeScreenshot'], function(takeScreenshot){
+require(['takeScreenshot', 'jquery'], function(takeScreenshot, $){
 
   function testPromise(promise, expectedWidth, expectedHeight){
     var result;
