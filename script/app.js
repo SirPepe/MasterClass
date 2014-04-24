@@ -17,8 +17,8 @@ require(['jquery', 'q', 'handleError',
   var videoPromise = requestStream()
     .then(renderVideo)
     .then(function(video){
-      video.play();
       $(video).appendTo('#VideoWrapper');
+      video.play();
       return video;
     })
     .fail(handleError('Kann Videostream nicht anzeigen'));
