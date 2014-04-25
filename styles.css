@@ -76,6 +76,12 @@ video {
 					transform: scale(2);
 }
 
+.fa-camera-retro:active:before {
+	-webkit-transform: scale(1);
+			-ms-transform: scale(1);
+					transform: scale(1);
+}
+
 /* Die kleinen Bildchen */
 #Gallery {
 	/* FF 2 - 21 | Chrome bis v20 */
@@ -114,10 +120,20 @@ video {
 	position: absolute;
 	top: 0;
 	right: 0;
-	background-color: #a20000;
+	background-color: #ff1400;
 	color: #fff;
 	padding: 5px;
 	border: 1px solid #fff;
+	-webkit-transition: all 0.5s;
+					transition: all 0.5s;	
+}
+
+.close:hover, 
+.close:focus {
+	background-color: #a20000;
+	-webkit-transform: scale(1.5);
+			-ms-transform: scale(1.5);
+					transform: scale(1.5);
 }
 
 footer {
