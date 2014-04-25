@@ -57,6 +57,7 @@ video {
 	margin: 10px auto;
 }
 
+/* Die kleinen Bildchen */
 #Gallery {
 	/* FF 2 - 21 | Chrome bis v20 */
 	/* Safari | Android | iOS */	
@@ -75,15 +76,14 @@ video {
 	justify-content: space-between;
 	flex-wrap: wrap;
 	align-items: flex-start;
-}
-
-#Gallery div:not(:first-child) {
-	margin-left: 20px;
+	
+	margin: 20px 0;
 }
 
 #Gallery div{
 	flex-shrink: 1;
 	position: relative;
+	margin-bottom: 10px;
 }
 
 #Gallery img {
