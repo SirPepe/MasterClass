@@ -56,13 +56,29 @@ video {
 #SnapButton {
 	border: none;
 	padding: 10px 20px;
-	background-color: #efefef;
-	color: #000;
 	font-size: 1.25rem;
 	display: block;
-	margin: 10px auto;
+	margin: 10px auto;	
+	background-color: #efefef;
+	color: #000;
 }
 
+#SnapButton[disabled] {
+	background-color: #a20000;
+	color: #fff;
+	cursor: auto;
+}
+
+#SnapButton[disabled]:before {
+	display: none;
+}
+
+/*
+#SnapButton:not([disabled]) {
+	background-color: #efefef;
+	color: #000;
+}
+*/
 .fa-camera-retro:before {
 	margin-right: 1rem;
 	-webkit-transition: all 0.5s;
