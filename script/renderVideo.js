@@ -28,15 +28,15 @@ define(['jquery', 'q'], function($, Q){
     // Video-Element anlegen, Quelle vergeben, auf Events warten
     $('<video>').attr('src', sourceUrl).on({
 
-        // 2.1 Promise mit Video-Element auflösen, sobald es abspielbereit ist
-        canplay: function onVideoCanPlay(evt){
-          deferred.resolve(evt.target);
-        },
+      // 2.1 Promise mit Video-Element auflösen, sobald es abspielbereit ist
+      canplay: function onVideoCanPlay(evt){
+        deferred.resolve(evt.target);
+      },
 
-        // 2.2 Promise im Fehlerfall rejecten
-        error: deferred.reject
+      // 2.2 Promise im Fehlerfall rejecten
+      error: deferred.reject
 
-      });
+    });
 
     // 2. Promise zurückgeben
     return deferred.promise;
