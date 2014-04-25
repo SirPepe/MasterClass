@@ -73,12 +73,6 @@ video {
 	display: none;
 }
 
-/*
-#SnapButton:not([disabled]) {
-	background-color: #efefef;
-	color: #000;
-}
-*/
 .fa-camera-retro:before {
 	margin-right: 1rem;
 	-webkit-transition: all 0.5s;
