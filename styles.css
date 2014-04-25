@@ -1,30 +1,62 @@
+/* Farben 
+	#09c
+	#996 
+	#71A3AD;
+	#588189;
+	
+	#cecece
+*/
+
+html {
+	font-size: 16px;
+	background-color: #efefef;
+	padding: 0 20px;
+}
 
 body {
-	background-color: #588189;
+	background-color: #996;
 	font-size: 100%;
 	padding: 20px;
+	max-width: 1040px;
+	margin: 0 auto;
+	font-family: Verdana, Arial, sans-serif;
 }
 
-#VideoWrapper, #Gallery {
-	max-width: 1040px;
-	margin: 10px auto;
+button:hover, button:focus {
+	cursor: pointer;
 }
+
+h1 {
+	padding-left: 1rem;
+	font-size: 2rem;
+	color: #000;
+}
+
+.fa-camera:before {
+	font-size: 4rem;
+	color: #cc0;
+	margin-right: 2rem;
+}
+
 video {
 	width: auto;
 	height: auto;
 	max-width: 100%;
-	
 	display: block;
 	margin: 0 auto;
 	border: 5px solid #fff;
 }
+
 #SnapButton {
 	border: none;
 	padding: 10px 20px;
-	background-color: #cecece;
+	background-color: #cc0;
 	color: #000;
 	font-size: 1.25rem;
+	display: block;
+	margin: 10px auto;
 }
+
 #Gallery {
 	/* FF 2 - 21 | Chrome bis v20 */
 	/* Safari | Android | iOS */	
@@ -44,23 +76,34 @@ video {
 	flex-wrap: wrap;
 	align-items: flex-start;
 }
+
 #Gallery div:not(:first-child) {
 	margin-left: 20px;
 }
+
 #Gallery div{
- /* flex-basis: 20%; */
 	flex-shrink: 1;
+	position: relative;
 }
-/*
-#Gallery div:first-child {
-	margin-left: 0;
-}
-*/
+
 #Gallery img {
 	display: block;
 	border: 2px solid #fff;
 }
 
-button:hover, button:focus {
-	cursor: pointer;
+.close {
+	position: absolute;
+	top: 0;
+	right: 0;
+	background-color: #a20000;
+	color: #fff;
+	padding: 5px;
+	border: 1px solid #fff;
+}
+
+footer {
+	border-top: 2px solid #fff;
+	margin: 20px 0;
+	padding: 20px 0 0 0;
+	
 }
