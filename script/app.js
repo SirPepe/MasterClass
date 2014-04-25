@@ -53,7 +53,7 @@ require(['jquery', 'q', 'handleError',
     var $wrapper = $('<div>');
     var $link = $('<a>').attr('href', photo.fullUrl);
     var $img = $('<img>').attr('src', photo.thumbUrl);
-    var $close = $('<button>').addClass('close').text('x');
+    var $close = $('<button>').addClass('close fab fa-times');
     $link.appendTo($wrapper);
     $close.appendTo($wrapper);
     $img.appendTo($link);
