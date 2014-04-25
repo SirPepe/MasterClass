@@ -3,7 +3,7 @@
 	#996 
 	#71A3AD;
 	#588189;
-	
+	#cc0
 	#cecece
 */
 
@@ -14,7 +14,7 @@ html {
 }
 
 body {
-	background-color: #996;
+	background-color: #c70;
 	font-size: 100%;
 	padding: 20px;
 	max-width: 1040px;
@@ -26,15 +26,21 @@ button:hover, button:focus {
 	cursor: pointer;
 }
 
+header {
+	border-bottom: 2px solid #fff;
+	padding-bottom: 0.75rem;
+	margin-bottom: 0.75rem;
+}
+
 h1 {
-	padding-left: 1rem;
+	padding: 0 0 0 1rem;
 	font-size: 2rem;
 	color: #000;
 }
 
 .fa-camera:before {
 	font-size: 4rem;
-	color: #cc0;
+	color: #000;
 	margin-right: 2rem;
 }
 
@@ -50,11 +56,24 @@ video {
 #SnapButton {
 	border: none;
 	padding: 10px 20px;
-	background-color: #cc0;
+	background-color: #efefef;
 	color: #000;
 	font-size: 1.25rem;
 	display: block;
 	margin: 10px auto;
+}
+
+.fa-camera-retro:before {
+	margin-right: 1rem;
+	-webkit-transition: all 0.5s;
+					transition: all 0.5s;
+}
+
+.fa-camera-retro:hover:before,
+.fa-camera-retro:focus:before {
+	-webkit-transform: scale(2);
+			-ms-transform: scale(2);
+					transform: scale(2);
 }
 
 /* Die kleinen Bildchen */
