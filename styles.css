@@ -29,7 +29,7 @@ button:hover, button:focus {
 header {
 	border-bottom: 2px solid #fff;
 	padding-bottom: 0.75rem;
-	margin-bottom: 0.75rem;
+	margin-bottom: 2.5rem;
 }
 
 h1 {
@@ -58,7 +58,7 @@ video {
 	padding: 10px 20px;
 	font-size: 1.25rem;
 	display: block;
-	margin: 10px auto;	
+	margin: 2.5rem auto;	
 	background-color: #efefef;
 	color: #000;
 }
@@ -112,7 +112,7 @@ video {
 	flex-wrap: wrap;
 	align-items: flex-start;
 	
-	margin: 20px 0;
+	margin: 2.5rem 0;
 }
 
 #Gallery div{
